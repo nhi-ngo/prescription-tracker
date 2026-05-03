@@ -40,7 +40,7 @@ router.patch('/:id', async (req, res) => {
 		const { status } = req.body;
 
 		const result = await pool.query(
-			`UPDATE authorization
+			`UPDATE authorizations
       SET status = $1
       WHERE id = $2
       RETURNING *`,
