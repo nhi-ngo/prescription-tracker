@@ -17,12 +17,12 @@ router.get('/', async (req, res) => {
 // CREATE authorization
 router.post('/', async (req, res) => {
 	try {
-		const { patient_name, medication, status } = req.body;
+		const { patient_name, medication, status, notes } = req.body;
 
 		const result = await pool.query(
 			`INSERT INTO authorizations
-      (patient_name, medication, status)
-      VALUES ($1,$2,$3)
+      (patient_name, medication, status, notes)
+      VALUES ($1,$2,$3,$4)
       RETURNING *`,
 			[patient_name, medication, status],
 		);
@@ -37,14 +37,16 @@ router.post('/', async (req, res) => {
 // UPDATE status
 router.patch('/:id', async (req, res) => {
 	try {
-		const { status } = req.body;
+		const { status, notes } = req.body;
 
 		const result = await pool.query(
 			`UPDATE authorizations
-      SET status = $1
-      WHERE id = $2
+      SET status = $1,
+          notes = $2,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $3
       RETURNING *`,
-			[status, req.params.id],
+			[status, notes, req.params.id],
 		);
 
 		res.json(result.rows[0]);

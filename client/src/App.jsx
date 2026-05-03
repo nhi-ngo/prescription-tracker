@@ -8,6 +8,7 @@ function App() {
 		patient_name: '',
 		medication: '',
 		status: 'Pending',
+		notes: '',
 	});
 
 	// Fetch authorizations
@@ -43,6 +44,7 @@ function App() {
 				patient_name: '',
 				medication: '',
 				status: 'Pending',
+				notes: '',
 			});
 
 			fetchAuthorizations();
@@ -52,9 +54,9 @@ function App() {
 	};
 
 	// Update status
-	const updateStatus = async (id, status) => {
+	const updateStatus = async (id, status, notes) => {
 		try {
-			await axios.patch(`${import.meta.env.VITE_API_URL}/authorizations/${id}`, { status });
+			await axios.patch(`${import.meta.env.VITE_API_URL}/authorizations/${id}`, { status, notes });
 
 			fetchAuthorizations();
 		} catch (error) {
@@ -87,32 +89,100 @@ function App() {
 					style={{ marginLeft: '10px' }}
 				/>
 
+				<input
+					type='text'
+					name='notes'
+					placeholder='Notes'
+					value={formData.notes}
+					onChange={handleChange}
+					style={{ marginLeft: '10px' }}
+				/>
+
 				<button type='submit' style={{ marginLeft: '10px' }}>
 					Add
 				</button>
 			</form>
 
-			{/* Authorization List */}
-			{authorizations.map((item) => (
-				<div
-					key={item.id}
-					style={{
-						border: '1px solid #ccc',
-						padding: '10px',
-						marginBottom: '10px',
-					}}
-				>
-					<h3>{item.patient_name}</h3>
+			{/* Authorization Table */}
+			<table
+				border='1'
+				cellPadding='10'
+				style={{
+					borderCollapse: 'collapse',
+					marginTop: '20px',
+				}}
+			>
+				<thead>
+					<tr>
+						<th scope='col'>Patient</th>
+						<th scope='col'>Medication</th>
+						<th scope='col'>Status</th>
+						<th scope='col'>Notes</th>
+						<th scope='col'>Created</th>
+						<th scope='col'>Updated</th>
+						<th scope='col'>Actions</th>
+					</tr>
+				</thead>
 
-					<p>Medication: {item.medication}</p>
+				<tbody>
+					{authorizations.map((item) => (
+						<tr key={item.id} scope='row'>
+							<td>{item.patient_name}</td>
 
-					<select value={item.status} onChange={(e) => updateStatus(item.id, e.target.value)}>
-						<option>Pending</option>
-						<option>Approved</option>
-						<option>Denied</option>
-					</select>
-				</div>
-			))}
+							<td>{item.medication}</td>
+
+							<td>
+								<select
+									value={item.status}
+									onChange={(e) => {
+										const updated = authorizations.map((auth) =>
+											auth.id === item.id
+												? {
+														...auth,
+														status: e.target.value,
+													}
+												: auth,
+										);
+
+										setAuthorizations(updated);
+									}}
+								>
+									<option>Pending</option>
+									<option>Approved</option>
+									<option>Denied</option>
+								</select>
+							</td>
+
+							<td>
+								<input
+									type='text'
+									value={item.notes || ''}
+									onChange={(e) => {
+										const updated = authorizations.map((auth) =>
+											auth.id === item.id
+												? {
+														...auth,
+														notes: e.target.value,
+													}
+												: auth,
+										);
+
+										setAuthorizations(updated);
+									}}
+								/>
+							</td>
+
+							<td>{item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
+
+							<td>{item.updated_at ? new Date(item.updated_at).toLocaleDateString() : '-'}</td>
+
+							<td>
+								<button onClick={() => updateStatus(item.id, item.status, item.notes)}>Save</button>
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
 		</div>
 	);
 }
