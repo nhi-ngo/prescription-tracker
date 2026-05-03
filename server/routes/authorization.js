@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
       (patient_name, medication, status, notes)
       VALUES ($1,$2,$3,$4)
       RETURNING *`,
-			[patient_name, medication, status],
+			[patient_name, medication, status, notes],
 		);
 
 		res.status(201).json(result.rows[0]);
