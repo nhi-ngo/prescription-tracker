@@ -13,7 +13,7 @@ function App() {
 	// Fetch authorizations
 	const fetchAuthorizations = async () => {
 		try {
-			const response = await axios.get('http://localhost:3000/authorizations');
+			const response = await axios.get(`${import.meta.env.VITE_API_URL}/authorizations`);
 			setAuthorizations(response.data);
 		} catch (error) {
 			console.error(error);
@@ -37,7 +37,7 @@ function App() {
 		e.preventDefault();
 
 		try {
-			await axios.post('http://localhost:3000/authorizations', formData);
+			await axios.post(`${import.meta.env.VITE_API_URL}/authorizations`, formData);
 
 			setFormData({
 				patient_name: '',
@@ -54,7 +54,7 @@ function App() {
 	// Update status
 	const updateStatus = async (id, status) => {
 		try {
-			await axios.patch(`http://localhost:3000/authorizations/${id}`, { status });
+			await axios.patch(`${import.meta.env.VITE_API_URL}/authorizations/${id}`, { status });
 
 			fetchAuthorizations();
 		} catch (error) {
