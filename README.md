@@ -6,7 +6,7 @@ Built to demonstrate full-stack engineering skills including REST API design, da
 
 # **Live Demo**
 
-- Frontend: <https://prescription-tracker-djqob95zb-nhingoy-3661s-projects.vercel.app/>
+- Frontend: <https://prescription-tracker.vercel.app/>
 - Backend: <https://prescription-tracker-yczj.onrender.com/>
 
 # **Tech**

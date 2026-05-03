@@ -1,6 +1,22 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const getStatusStyle = (status) => {
+	switch (status) {
+		case 'Approved':
+			return { backgroundColor: '#d4edda', color: '#155724' };
+
+		case 'Pending':
+			return { backgroundColor: '#fff3cd', color: '#856404' };
+
+		case 'Denied':
+			return { backgroundColor: '#f8d7da', color: '#721c24' };
+
+		default:
+			return {};
+	}
+};
+
 function App() {
 	const [authorizations, setAuthorizations] = useState([]);
 
@@ -170,6 +186,12 @@ function App() {
 											);
 
 											setAuthorizations(updated);
+										}}
+										style={{
+											padding: '4px 8px',
+											borderRadius: '6px',
+											textAlign: 'center',
+											...getStatusStyle(item.status),
 										}}
 									>
 										<option>Pending</option>
