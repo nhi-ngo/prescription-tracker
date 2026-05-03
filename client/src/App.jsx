@@ -53,6 +53,8 @@ function App() {
 		});
 	};
 
+	const canSubmit = formData.patient_name.trim() !== '' && formData.medication.trim() !== '';
+
 	// Add authorization
 	const handleSubmit = async (e) => {
 		try {
@@ -247,6 +249,7 @@ function App() {
 								value={formData.patient_name}
 								onChange={handleChange}
 								style={{ width: '100%', marginBottom: '10px' }}
+								required
 							/>
 
 							<input
@@ -255,6 +258,7 @@ function App() {
 								value={formData.medication}
 								onChange={handleChange}
 								style={{ width: '100%', marginBottom: '10px' }}
+								required
 							/>
 
 							<textarea
@@ -266,7 +270,11 @@ function App() {
 								style={{ width: '100%', marginBottom: '10px' }}
 							/>
 
-							<button onClick={() => handleSubmit()} style={{ marginRight: '10px' }}>
+							{!canSubmit && (
+								<p style={{ color: 'red', fontSize: '12px' }}>Patient name and medication are required.</p>
+							)}
+
+							<button onClick={() => handleSubmit()} style={{ marginRight: '10px' }} disabled={!canSubmit}>
 								Submit
 							</button>
 

@@ -19,6 +19,12 @@ router.post('/', async (req, res) => {
 	try {
 		const { patient_name, medication, status, notes } = req.body;
 
+		if (!patient_name || !medication) {
+			return res.status(400).json({
+				error: 'Patient name and medication are required',
+			});
+		}
+
 		const result = await pool.query(
 			`INSERT INTO authorizations
       (patient_name, medication, status, notes)
