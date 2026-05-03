@@ -11,6 +11,8 @@ function App() {
 		notes: '',
 	});
 
+	const [filter, setFilter] = useState('All');
+
 	// Fetch authorizations
 	const fetchAuthorizations = async () => {
 		try {
@@ -103,13 +105,31 @@ function App() {
 				</button>
 			</form>
 
+			<div style={{ marginBottom: '15px' }}>
+				{['All', 'Pending', 'Approved', 'Denied'].map((status) => (
+					<button
+						key={status}
+						onClick={() => setFilter(status)}
+						style={{
+							marginRight: '5px',
+							fontWeight: filter === status ? 'bold' : 'normal',
+							textDecoration: filter === status ? 'underline' : 'none',
+						}}
+					>
+						{status}
+					</button>
+				))}
+			</div>
+
 			{/* Authorization Table */}
 			<table
 				border='1'
 				cellPadding='10'
 				style={{
+					width: '100%',
 					borderCollapse: 'collapse',
 					marginTop: '20px',
+					tableLayout: 'fixed',
 				}}
 			>
 				<thead>
@@ -125,62 +145,71 @@ function App() {
 				</thead>
 
 				<tbody>
-					{authorizations.map((item) => (
-						<tr key={item.id} scope='row'>
-							<td>{item.patient_name}</td>
+					{authorizations
+						.filter((item) => {
+							if (filter === 'All') return true;
+							return item.status === filter;
+						})
+						.map((item) => (
+							<tr key={item.id} scope='row'>
+								<td>{item.patient_name}</td>
 
-							<td>{item.medication}</td>
+								<td>{item.medication}</td>
 
-							<td>
-								<select
-									value={item.status}
-									onChange={(e) => {
-										const updated = authorizations.map((auth) =>
-											auth.id === item.id
-												? {
-														...auth,
-														status: e.target.value,
-													}
-												: auth,
-										);
+								<td>
+									<select
+										value={item.status}
+										onChange={(e) => {
+											const updated = authorizations.map((auth) =>
+												auth.id === item.id
+													? {
+															...auth,
+															status: e.target.value,
+														}
+													: auth,
+											);
 
-										setAuthorizations(updated);
-									}}
-								>
-									<option>Pending</option>
-									<option>Approved</option>
-									<option>Denied</option>
-								</select>
-							</td>
+											setAuthorizations(updated);
+										}}
+									>
+										<option>Pending</option>
+										<option>Approved</option>
+										<option>Denied</option>
+									</select>
+								</td>
 
-							<td>
-								<input
-									type='text'
-									value={item.notes || ''}
-									onChange={(e) => {
-										const updated = authorizations.map((auth) =>
-											auth.id === item.id
-												? {
-														...auth,
-														notes: e.target.value,
-													}
-												: auth,
-										);
+								<td>
+									<input
+										type='text'
+										value={item.notes || ''}
+										style={{
+											width: '95%',
+											boxSizing: 'border-box',
+										}}
+										onChange={(e) => {
+											const updated = authorizations.map((auth) =>
+												auth.id === item.id
+													? {
+															...auth,
+															notes: e.target.value,
+														}
+													: auth,
+											);
 
-										setAuthorizations(updated);
-									}}
-								/>
-							</td>
+											setAuthorizations(updated);
+										}}
+									/>
+								</td>
 
-							<td>{item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
+								<td>{item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
 
-							<td>{item.updated_at ? new Date(item.updated_at).toLocaleDateString() : '-'}</td>
+								<td>{item.updated_at ? new Date(item.updated_at).toLocaleDateString() : '-'}</td>
 
-							<td>
-								<button onClick={() => updateStatus(item.id, item.status, item.notes)}>Save</button>
-							</td>
-						</tr>
-					))}
+								<td>
+									<button onClick={() => updateStatus(item.id, item.status, item.notes)}>Save</button>
+								</td>
+							</tr>
+						))}
 				</tbody>
 			</table>
 		</div>
