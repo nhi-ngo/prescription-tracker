@@ -31,13 +31,18 @@ function App() {
 
 	const [showModal, setShowModal] = useState(false);
 
+	const [loading, setLoading] = useState(false);
+
 	// Fetch authorizations
 	const fetchAuthorizations = async () => {
 		try {
+			setLoading(true);
 			const response = await axios.get(`${import.meta.env.VITE_API_URL}/authorizations`);
 			setAuthorizations(response.data);
 		} catch (error) {
 			console.error(error);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -124,100 +129,104 @@ function App() {
 				</div>
 
 				{/* Authorization Table */}
-				<table
-					border='1'
-					cellPadding='10'
-					style={{
-						width: '100%',
-						borderCollapse: 'collapse',
-						marginTop: '20px',
-						tableLayout: 'fixed',
-					}}
-				>
-					<thead>
-						<tr>
-							<th scope='col'>Patient</th>
-							<th scope='col'>Medication</th>
-							<th scope='col'>Status</th>
-							<th scope='col'>Notes</th>
-							<th scope='col'>Created</th>
-							<th scope='col'>Updated</th>
-							<th scope='col'>Actions</th>
-						</tr>
-					</thead>
+				{loading ? (
+					<div style={{ marginTop: '20px', textAlign: 'center', fontStyle: 'italic' }}>Loading authorizations...</div>
+				) : (
+					<table
+						border='1'
+						cellPadding='10'
+						style={{
+							width: '100%',
+							borderCollapse: 'collapse',
+							marginTop: '20px',
+							tableLayout: 'fixed',
+						}}
+					>
+						<thead>
+							<tr>
+								<th scope='col'>Patient</th>
+								<th scope='col'>Medication</th>
+								<th scope='col'>Status</th>
+								<th scope='col'>Notes</th>
+								<th scope='col'>Created</th>
+								<th scope='col'>Updated</th>
+								<th scope='col'>Actions</th>
+							</tr>
+						</thead>
 
-					<tbody>
-						{authorizations
-							.filter((item) => {
-								if (filter === 'All') return true;
-								return item.status === filter;
-							})
-							.map((item) => (
-								<tr key={item.id} scope='row'>
-									<td>{item.patient_name}</td>
+						<tbody>
+							{authorizations
+								.filter((item) => {
+									if (filter === 'All') return true;
+									return item.status === filter;
+								})
+								.map((item) => (
+									<tr key={item.id} scope='row'>
+										<td>{item.patient_name}</td>
 
-									<td>{item.medication}</td>
+										<td>{item.medication}</td>
 
-									<td>
-										<select
-											value={item.status}
-											onChange={(e) => {
-												const updated = authorizations.map((auth) =>
-													auth.id === item.id
-														? {
-																...auth,
-																status: e.target.value,
-															}
-														: auth,
-												);
+										<td>
+											<select
+												value={item.status}
+												onChange={(e) => {
+													const updated = authorizations.map((auth) =>
+														auth.id === item.id
+															? {
+																	...auth,
+																	status: e.target.value,
+																}
+															: auth,
+													);
 
-												setAuthorizations(updated);
-											}}
-											style={{
-												padding: '4px 8px',
-												borderRadius: '6px',
-												textAlign: 'center',
-												...getStatusStyle(item.status),
-											}}
-										>
-											<option>Pending</option>
-											<option>Approved</option>
-											<option>Denied</option>
-										</select>
-									</td>
+													setAuthorizations(updated);
+												}}
+												style={{
+													padding: '4px 8px',
+													borderRadius: '6px',
+													textAlign: 'center',
+													...getStatusStyle(item.status),
+												}}
+											>
+												<option>Pending</option>
+												<option>Approved</option>
+												<option>Denied</option>
+											</select>
+										</td>
 
-									<td>
-										<textarea
-											name='notes'
-											placeholder='Notes'
-											value={item.notes || ''}
-											onChange={(e) => {
-												const updated = authorizations.map((auth) =>
-													auth.id === item.id
-														? {
-																...auth,
-																notes: e.target.value,
-															}
-														: auth,
-												);
+										<td>
+											<textarea
+												name='notes'
+												placeholder='Notes'
+												value={item.notes || ''}
+												onChange={(e) => {
+													const updated = authorizations.map((auth) =>
+														auth.id === item.id
+															? {
+																	...auth,
+																	notes: e.target.value,
+																}
+															: auth,
+													);
 
-												setAuthorizations(updated);
-											}}
-											style={{ width: '100%' }}
-										/>
-									</td>
+													setAuthorizations(updated);
+												}}
+												style={{ width: '100%' }}
+											/>
+										</td>
 
-									<td>{item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
+										<td>{item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
 
-									<td>{item.updated_at ? new Date(item.updated_at).toLocaleDateString() : '-'}</td>
+										<td>{item.updated_at ? new Date(item.updated_at).toLocaleDateString() : '-'}</td>
 
-									<td>
-										<button onClick={() => updateStatus(item.id, item.status, item.notes)}>Save</button>
-									</td>
-								</tr>
-							))}
-					</tbody>
-				</table>
+										<td>
+											<button onClick={() => updateStatus(item.id, item.status, item.notes)}>Save</button>
+										</td>
+									</tr>
+								))}
+						</tbody>
+					</table>
+				)}
 
 				{showModal && (
 					<div
