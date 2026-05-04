@@ -33,12 +33,19 @@ function App() {
 
 	const [loading, setLoading] = useState(false);
 
+	const [page, setPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
+
 	// Fetch authorizations
 	const fetchAuthorizations = async () => {
 		try {
 			setLoading(true);
-			const response = await axios.get(`${import.meta.env.VITE_API_URL}/authorizations`);
-			setAuthorizations(response.data);
+
+			const response = await axios.get(`${import.meta.env.VITE_API_URL}/authorizations?page=${page}&limit=10`);
+
+			setAuthorizations(response.data.data);
+
+			setTotalPages(response.data.pagination.totalPages);
 		} catch (error) {
 			console.error(error);
 		} finally {
@@ -48,7 +55,7 @@ function App() {
 
 	useEffect(() => {
 		fetchAuthorizations();
-	}, []);
+	}, [page]);
 
 	// Handle form typing
 	const handleChange = (e) => {
@@ -231,6 +238,29 @@ function App() {
 						</tbody>
 					</table>
 				)}
+
+				{/* Pagination */}
+				<div
+					style={{
+						marginTop: '20px',
+						display: 'flex',
+						gap: '10px',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+				>
+					<button onClick={() => setPage((prev) => Math.max(prev - 1, 1))} disabled={page === 1}>
+						Previous
+					</button>
+
+					<span>
+						Page {page} of {totalPages}
+					</span>
+
+					<button onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))} disabled={page === totalPages}>
+						Next
+					</button>
+				</div>
 
 				{showModal && (
 					<div

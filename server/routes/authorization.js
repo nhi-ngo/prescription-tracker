@@ -5,11 +5,27 @@ const pool = require('../db');
 // GET all authorizations
 router.get('/', async (req, res) => {
 	try {
-		const result = await pool.query('SELECT * FROM authorizations ORDER BY id DESC');
+		const page = parseInt(req.query.page) || 1;
+		const limit = parseInt(req.query.limit) || 5;
 
-		res.json(result.rows);
+		const offset = (page - 1) * limit;
+
+		const result = await pool.query(
+			`SELECT *
+      FROM authorizations
+      ORDER BY updated_at DESC
+      LIMIT $1
+      OFFSET $2`,
+			[limit, offset],
+		);
+
+		const totalResult = await pool.query(`SELECT COUNT(*) FROM authorizations`);
+		const total = parseInt(totalResult.rows[0].count);
+
+		res.json({ pagination: { total, page, limit, totalPages: Math.ceil(total / limit) }, data: result.rows });
 	} catch (err) {
 		console.error(err.message);
+
 		res.status(500).json({ error: 'Server error' });
 	}
 });
