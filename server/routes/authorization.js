@@ -25,6 +25,20 @@ router.post('/', async (req, res) => {
 			});
 		}
 
+		const existing = await pool.query(
+			`SELECT *
+      FROM authorizations
+      WHERE LOWER(patient_name) = LOWER($1)
+      AND LOWER(medication) = LOWER($2)`,
+			[patient_name, medication],
+		);
+
+		if (existing.rows.length > 0) {
+			return res.status(409).json({
+				error: 'Authorization already exists for this patient and medication',
+			});
+		}
+
 		const result = await pool.query(
 			`INSERT INTO authorizations
       (patient_name, medication, status, notes)

@@ -75,7 +75,11 @@ function App() {
 			setShowModal(false);
 			fetchAuthorizations();
 		} catch (error) {
-			console.error('Failed to create authorization:', error);
+			if (error.response?.status === 409) {
+				alert('Authorization already exists for this patient and medication');
+			} else {
+				console.error(error);
+			}
 		}
 	};
 
